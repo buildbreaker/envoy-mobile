@@ -9,11 +9,11 @@ private struct ContentRow: Identifiable {
     let content: String
 }
 
-private extension EngineBuilder {
-    static let demoEngine = EngineBuilder()
-        .addLogLevel(.debug)
-        .build()
-}
+// private extension EngineBuilder {
+//     static let demoEngine = EngineBuilder()
+//         .addLogLevel(.debug)
+//         .build()
+// }
 
 struct ContentView: View {
     @State private var rows: [ContentRow] = []
@@ -26,21 +26,26 @@ struct ContentView: View {
             }
         }
         .task {
-            writeLog("Generating data")
-            let data = Data.ones(byteCount: 5 * 1_024 * 1_024)
+            // Print types from Envoy module to validate they resolve
+            writeLog(String(describing: LogLevel.critical.rawValue))
+            writeLog("\(RouteMatcher.self)")
+            writeLog("\(EnvoyError(errorCode: 123, message: "foo", attemptCount: 456, cause: nil))")
+            writeLog("\(Headers.self)")
+            // writeLog("Generating data")
+            // let data = Data.ones(byteCount: 5 * 1_024 * 1_024)
 
-            writeLog("Initializing Envoy Engine")
-            let streamClient = EngineBuilder.demoEngine
-                .streamClient()
+            // writeLog("Initializing Envoy Engine")
+            // let streamClient = EngineBuilder.demoEngine
+            //     .streamClient()
 
-            writeLog("Dispatching requests")
-            for index in 0..<3 {
-                await streamClient.postToHTTPBin(data: data, logger: { log in
-                    Task.detached {
-                        await writeLog("[\(index)] \(log)")
-                    }
-                })
-            }
+            // writeLog("Dispatching requests")
+            // for index in 0..<3 {
+            //     await streamClient.postToHTTPBin(data: data, logger: { log in
+            //         Task.detached {
+            //             await writeLog("[\(index)] \(log)")
+            //         }
+            //     })
+            // }
         }
     }
 
@@ -56,53 +61,53 @@ struct ContentView: View {
 
 // MARK: - Post Data To HTTP Bin
 
-private extension StreamClient {
-    func postToHTTPBin(data: Data, logger: @escaping (String) -> Void) async {
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            DispatchQueue.networking.async {
-                self.postToHTTPBin(data: data, logger: logger)
-                continuation.resume()
-            }
-        }
-    }
-
-    func postToHTTPBin(data: Data, logger: @escaping (String) -> Void) {
-        logger("Initiating upload")
-
-        let stream = self
-            .newStreamPrototype()
-            .setOnResponseHeaders { headers, _, _ in
-                let allHeaders = headers.allHeaders()
-
-                if allHeaders[":status"]?.first == "200",
-                   // TODO(jpsim): Expose an API that enforces case-insensitive lookups
-                   let contentLengthValue = allHeaders["Content-Length"] ??
-                                            allHeaders["content-length"],
-                   let firstContentLength = contentLengthValue.first,
-                   let contentLengthInt = Int64(firstContentLength)
-                {
-                    let formattedByteCount = ByteCountFormatter()
-                        .string(fromByteCount: contentLengthInt)
-                    logger("Uploaded \(formattedByteCount) of data")
-                    return
-                }
-
-                let headerMessage = allHeaders
-                    .map { "\($0.key): \($0.value.joined(separator: ", "))" }
-                    .joined(separator: "\n")
-
-                logger("Upload failed.\nHeaders: \(headerMessage)")
-            }
-            .start(queue: .networking)
-
-        let headers = RequestHeadersBuilder(method: .post, scheme: "https",
-                                            authority: "httpbin.org", path: "/post")
-            .build()
-        stream.sendHeaders(headers, endStream: false)
-        stream.close(data: data)
-        logger("Finished scheduling upload")
-    }
-}
+//private extension StreamClient {
+//    func postToHTTPBin(data: Data, logger: @escaping (String) -> Void) async {
+//        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+//            DispatchQueue.networking.async {
+//                self.postToHTTPBin(data: data, logger: logger)
+//                continuation.resume()
+//            }
+//        }
+//    }
+//
+//    func postToHTTPBin(data: Data, logger: @escaping (String) -> Void) {
+//        logger("Initiating upload")
+//
+//        let stream = self
+//            .newStreamPrototype()
+//            .setOnResponseHeaders { headers, _, _ in
+//                let allHeaders = headers.allHeaders()
+//
+//                if allHeaders[":status"]?.first == "200",
+//                   // TODO(jpsim): Expose an API that enforces case-insensitive lookups
+//                   let contentLengthValue = allHeaders["Content-Length"] ??
+//                                            allHeaders["content-length"],
+//                   let firstContentLength = contentLengthValue.first,
+//                   let contentLengthInt = Int64(firstContentLength)
+//                {
+//                    let formattedByteCount = ByteCountFormatter()
+//                        .string(fromByteCount: contentLengthInt)
+//                    logger("Uploaded \(formattedByteCount) of data")
+//                    return
+//                }
+//
+//                let headerMessage = allHeaders
+//                    .map { "\($0.key): \($0.value.joined(separator: ", "))" }
+//                    .joined(separator: "\n")
+//
+//                logger("Upload failed.\nHeaders: \(headerMessage)")
+//            }
+//            .start(queue: .networking)
+//
+//        let headers = RequestHeadersBuilder(method: .post, scheme: "https",
+//                                            authority: "httpbin.org", path: "/post")
+//            .build()
+//        stream.sendHeaders(headers, endStream: false)
+//        stream.close(data: data)
+//        logger("Finished scheduling upload")
+//    }
+//}
 
 // MARK: - Data Utilities
 
