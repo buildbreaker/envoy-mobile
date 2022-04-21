@@ -27,11 +27,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          current_release_version=v0.4.6.20220420-preview
+          current_release_version=v0.4.6.20220421-preview
           ./bazelw build \
               --config=release-android \
               --fat_apk_cpu=x86 \
-              --define=pom_version=$current_release_version \
+              --define=pom_version="${current_release_version:1}" \
               --config=remote-ci-macos \
               --remote_header="Authorization=Bearer $GITHUB_TOKEN" \
               //:android_dist_ci
@@ -87,7 +87,7 @@ jobs:
           READWRITE_API_KEY: ${{ secrets.sonatype_password }}
           ENVOY_PROXY_PROFILE_ID: ${{ secrets.envoy_proxy_profile_id }}
         run: |
-          current_release_tag=v0.4.6.20220420-preview
+          current_release_tag=v0.4.6.20220421-preview
           python dist/sonatype_nexus_upload.py \
             --profile_id=$ENVOY_PROXY_PROFILE_ID \
             --version="${current_release_tag:1}" \
