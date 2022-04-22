@@ -6,6 +6,7 @@
 #include "source/extensions/clusters/dynamic_forward_proxy/cluster.h"
 #include "source/extensions/compression/brotli/decompressor/config.h"
 #include "source/extensions/compression/gzip/decompressor/config.h"
+#include "source/extensions/filters/http/alternate_protocols_cache/config.h"
 #include "source/extensions/filters/http/buffer/config.h"
 #include "source/extensions/filters/http/decompressor/config.h"
 #include "source/extensions/filters/http/dynamic_forward_proxy/config.h"
@@ -55,6 +56,7 @@ void ExtensionRegistry::registerFactories() {
   Envoy::Extensions::TransportSockets::Tls::forceRegisterUpstreamSslSocketFactory();
   Envoy::Extensions::TransportSockets::Tls::forceRegisterDefaultCertValidatorFactory();
   Envoy::Extensions::Upstreams::Http::Generic::forceRegisterGenericGenericConnPoolFactory();
+  Envoy::Extensions::HttpFilters::AlternateProtocolsCache::forceRegisterAlternateProtocolsCacheFilterFactory();
   Envoy::Upstream::forceRegisterLogicalDnsClusterFactory();
   ExtensionRegistryPlatformAdditions::registerFactories();
 

@@ -84,13 +84,11 @@ build:release-common --define=no_debug_info=1
 build:release-common --config=sizeopt
 
 # Set default symbols visibility to hidden to reduce .dynstr and the symbol table size
-build:release-common --copt=-fvisibility=hidden
 
 # Flags for release builds targeting iOS
 build:release-ios --apple_bitcode=embedded
 build:release-ios --config=ios
 build:release-ios --config=release-common
-build:release-ios --copt=-fembed-bitcode
 build:release-ios --compilation_mode=opt
 
 # Flags for release builds targeting Android or the JVM
