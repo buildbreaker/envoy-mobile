@@ -1,6 +1,4 @@
 load("@envoy_mobile//bazel:dokka.bzl", "sources_javadocs")
-load("@rules_java//java:defs.bzl", "java_binary")
-load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@google_bazel_common//tools/maven:pom_file.bzl", "pom_file")
 
 # This file is based on https://github.com/aj-michael/aar_with_jni which is
@@ -202,7 +200,7 @@ def _create_jni_library(name, native_deps = []):
     # We wrap our native so dependencies in a cc_library because android_binaries
     # require a library target as dependencies in order to generate the appropriate
     # architectures in the directory `lib/`
-    cc_library(
+    native.cc_library(
         name = cc_lib_name,
         srcs = native_deps,
     )
@@ -261,7 +259,7 @@ def _create_sources_javadocs(name, android_library):
     _javadocs_name = name + "_android_javadocs"
 
     # This implicitly outputs {name}_deploy-src.jar which is the sources jar
-    java_binary(
+    native.java_binary(
         name = _sources_name,
         runtime_deps = [android_library],
         main_class = "EngineImpl",
