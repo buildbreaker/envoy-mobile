@@ -3,6 +3,7 @@ name: android_tests
 on:
   push:
     branches:
+      - jp-fix-android-ci-bazel-6
       - main
   pull_request:
 
