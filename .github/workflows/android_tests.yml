@@ -3,6 +3,7 @@ name: android_tests
 on:
   push:
     branches:
+      - jp-ks/bazel-update-rules_kotlin-and-rules_detekt
       - main
   pull_request:
 
